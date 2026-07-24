@@ -1,0 +1,8 @@
+"""
+VERIDEX X
+Telegram Configuration
+"""
+
+BOT_TOKEN = "YOUR_NEW_BOT_TOKEN = "8918599661:AAHboeG5XlCGRU-_SBUNyxc9rYEAy1Bv4uw
+
+OWNER_CHAT_ID = "8940693185"
