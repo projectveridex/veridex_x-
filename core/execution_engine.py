@@ -4,6 +4,7 @@ EXECUTION ENGINE
 """
 
 from core.workflow_router import detect_workflow
+from core.wordpress_engine import analyze as wordpress_analyze
 
 
 def execute(approved):
@@ -11,6 +12,12 @@ def execute(approved):
     opportunity = approved["opportunity"]
 
     workflow = detect_workflow(opportunity)
+
+    if workflow.name == "wordpress":
+
+        result = wordpress_analyze(opportunity)
+
+        return result
 
     return {
         "status": "READY",
