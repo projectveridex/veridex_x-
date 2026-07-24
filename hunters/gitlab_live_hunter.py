@@ -5,65 +5,53 @@ GitLab Live Hunter
 
 import requests
 
+from core.opportunity import Opportunity
+
 
 def scan_gitlab_live():
 
     opportunities = []
 
-    search_terms = [
+    terms = [
         "help wanted",
-        "good first issue",
         "bug fix",
         "automation"
     ]
 
-    headers = {
-        "User-Agent": "VERIDEX-X"
-    }
-
-    for term in search_terms:
-
-        url = (
-            "https://gitlab.com/api/v4/issues"
-            f"?search={term}"
-            "&state=opened"
-        )
+    for term in terms:
 
         try:
 
             response = requests.get(
-                url,
-                headers=headers,
+                "https://gitlab.com/api/v4/issues",
+                params={
+                    "search": term,
+                    "state": "opened"
+                },
                 timeout=10
             )
 
             if response.status_code != 200:
                 continue
 
-            issues = response.json()
+            for issue in response.json()[:5]:
 
-            for issue in issues[:5]:
-
-                opportunities.append({
-
-                    "title": issue.get(
-                        "title",
-                        "Unknown GitLab Issue"
-                    ),
-
-                    "source": "GitLab",
-
-                    "url": issue.get(
-                        "web_url",
-                        ""
-                    ),
-
-                    "description": issue.get(
-                        "description",
-                        ""
-                    )[:200]
-
-                })
+                opportunities.append(
+                    Opportunity(
+                        title=issue.get(
+                            "title"
+                        ),
+                        source="GitLab",
+                        url=issue.get(
+                            "web_url",
+                            ""
+                        ),
+                        description=issue.get(
+                            "description",
+                            ""
+                        )[:200]
+                    )
+                )
 
         except Exception:
             continue
