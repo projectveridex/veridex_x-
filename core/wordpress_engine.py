@@ -5,17 +5,41 @@ WORDPRESS ENGINE
 
 def analyze(opportunity):
 
+    title = getattr(opportunity, "title", "Unknown Task")
+
     return {
         "engine": "wordpress_engine",
         "status": "READY",
-        "estimated_time": "30-60 minutes",
-        "possible_tasks": [
-            "Plugin conflict diagnosis",
-            "Theme compatibility check",
-            "Cache inspection",
-            "WooCommerce compatibility review",
-            "Security review",
-            "Performance optimization suggestions"
+
+        "job": title,
+
+        "confidence": 95,
+
+        "estimated_time": "30 - 60 minutes",
+
+        "diagnosis": [
+            "Check plugin compatibility",
+            "Inspect theme conflicts",
+            "Review WordPress error logs",
+            "Check cache configuration",
+            "Verify file permissions",
+            "Inspect security / WAF rules"
         ],
-        "next_step": "Prepare detailed execution plan for client approval"
-          }
+
+        "execution_plan": [
+            "Backup website",
+            "Reproduce issue",
+            "Locate root cause",
+            "Apply fix",
+            "Regression test",
+            "Prepare delivery report"
+        ],
+
+        "deliverables": [
+            "Issue Summary",
+            "Root Cause",
+            "Fix Applied",
+            "Testing Result",
+            "Client Recommendations"
+        ]
+    }
