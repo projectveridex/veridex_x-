@@ -1,6 +1,6 @@
 """
 VERIDEX X
-Telegram Bot
+TELEGRAM CONTROL BOT
 """
 
 from telegram import Update
@@ -43,7 +43,8 @@ async def scan(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"""
 🔥 VERIDEX REPORT
 
-Live Opportunities Found: {len(jobs)}
+Live Opportunities Found:
+{len(jobs)}
 
 Use /jobs to view them.
 """
@@ -52,34 +53,29 @@ Use /jobs to view them.
 
 async def jobs(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    queue = get_approval_queue().pending()
+    jobs = get_last_scan()
 
-    if not queue:
+    if not jobs:
 
         await update.message.reply_text(
-            "❌ No opportunities found.\nRun /scan first."
+            "No scan yet."
         )
 
         return
 
 
-    message = "📋 VERIDEX LIVE OPPORTUNITIES\n\n"
+    message = """
+📋 VERIDEX LIVE OPPORTUNITIES
+
+"""
 
 
-    for i, item in enumerate(queue[:10], start=1):
-
-        job = item["opportunity"]
-
-        score = item.get(
-            "score",
-            0
-        )
+    for i, job in enumerate(jobs, start=1):
 
         message += (
             f"{i}. {job.title}\n"
             f"🌐 Source: {job.source}\n"
-            f"⭐ Score: {score}/100\n"
-            f"🔗 {job.url}\n\n"
+            f"⭐ Score: {getattr(job, 'score', 'N/A')}/100\n\n"
         )
 
 
@@ -96,7 +92,7 @@ async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
 
         await update.message.reply_text(
-            "Usage:\n/approve 1"
+            "Usage: /approve 1"
         )
 
         return
@@ -109,7 +105,7 @@ async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except ValueError:
 
         await update.message.reply_text(
-            "Job number must be a number."
+            "Please use a number."
         )
 
         return
@@ -123,31 +119,82 @@ async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if approved is None:
 
         await update.message.reply_text(
-            "❌ Invalid selection."
+            "Invalid selection."
         )
 
         return
 
 
-    result = execute(
-        approved
-    )
+    result = execute(approved)
 
 
-    await update.message.reply_text(
-        f"""
+    opportunity = approved["opportunity"]
+
+
+    message = f"""
 ✅ APPROVED
 
 Job:
-{approved['opportunity'].title}
+{opportunity.title}
 
-Workflow:
-{result['job_type']}
+Engine:
+{result.get('engine', result.get('job_type', 'general'))}
 
 Status:
-{result['status']}
+{result.get('status', 'READY')}
 """
+
+
+    if "confidence" in result:
+
+        message += (
+            f"\nConfidence:\n"
+            f"{result['confidence']}%\n"
+        )
+
+
+    if "estimated_time" in result:
+
+        message += (
+            f"\n⏱ Estimated Time:\n"
+            f"{result['estimated_time']}\n"
+        )
+
+
+    if "diagnosis" in result:
+
+        message += "\n🔍 Diagnosis\n"
+
+        for item in result["diagnosis"]:
+
+            message += f"• {item}\n"
+
+
+
+    if "execution_plan" in result:
+
+        message += "\n🛠 Execution Plan\n"
+
+        for step in result["execution_plan"]:
+
+            message += f"• {step}\n"
+
+
+
+    if "deliverables" in result:
+
+        message += "\n📦 Deliverables\n"
+
+        for item in result["deliverables"]:
+
+            message += f"• {item}\n"
+
+
+    await update.message.reply_text(
+        message
     )
+
+
 
 
 def build_bot():
