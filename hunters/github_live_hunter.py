@@ -5,23 +5,14 @@ GitHub Live Hunter
 
 import requests
 
-
-class Opportunity:
-
-    def __init__(self, title, source, url, description=""):
-
-        self.title = title
-        self.source = source
-        self.url = url
-        self.description = description
+from core.opportunity import Opportunity
 
 
 SEARCH_TERMS = [
     "wordpress bug",
     "help wanted",
     "good first issue",
-    "python automation",
-    "website fix"
+    "python automation"
 ]
 
 
@@ -36,15 +27,13 @@ def scan_github_live():
 
     for term in SEARCH_TERMS:
 
-        url = (
-            "https://api.github.com/search/issues"
-            f"?q={term}+state:open"
-        )
-
         try:
 
             response = requests.get(
-                url,
+                "https://api.github.com/search/issues",
+                params={
+                    "q": f"{term} state:open"
+                },
                 headers=headers,
                 timeout=10
             )
@@ -52,19 +41,18 @@ def scan_github_live():
             if response.status_code != 200:
                 continue
 
-            data = response.json()
-
-            for item in data.get("items", [])[:5]:
+            for item in response.json().get("items", [])[:5]:
 
                 opportunities.append(
-
                     Opportunity(
                         title=item["title"],
                         source="GitHub",
                         url=item["html_url"],
-                        description=item.get("body", "")[:200]
+                        description=item.get(
+                            "body",
+                            ""
+                        )[:200]
                     )
-
                 )
 
         except Exception:
