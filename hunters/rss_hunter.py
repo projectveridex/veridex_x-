@@ -1,16 +1,46 @@
 """
 VERIDEX X
-RSS Hunter
+RSS Live Hunter
 """
 
-from hunters.github_live_hunter import Opportunity
+import feedparser
+
+from core.opportunity import Opportunity
+
+
+RSS_FEEDS = [
+    "https://www.reddit.com/r/forhire/.rss",
+    "https://www.reddit.com/r/webdev/.rss"
+]
 
 
 def scan_rss():
 
-    return [
-        Opportunity(
-            "Website Needs Fix",
-            "RSS"
-        )
-    ]
+    opportunities = []
+
+    for feed_url in RSS_FEEDS:
+
+        try:
+
+            feed = feedparser.parse(feed_url)
+
+            for entry in feed.entries[:5]:
+
+                opportunities.append(
+                    Opportunity(
+                        title=entry.title,
+                        source="RSS",
+                        url=entry.link,
+                        description=getattr(
+                            entry,
+                            "summary",
+                            ""
+                        )[:200]
+                    )
+                )
+
+        except Exception:
+
+            continue
+
+    return opportunities
