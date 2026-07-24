@@ -10,6 +10,8 @@ from core.learning_engine import LearningEngine
 from core.approval_queue import ApprovalQueue
 from core.task_planner import TaskPlanner
 from core.database import add_record
+from core.scoring_engine import score_opportunity
+
 
 learning = LearningEngine()
 approval_queue = ApprovalQueue()
@@ -30,17 +32,26 @@ def run_veridex():
 
     for opportunity in opportunities:
 
+        score = score_opportunity(opportunity)
+
         add_record({
             "title": opportunity.title,
-            "source": opportunity.source
+            "source": opportunity.source,
+            "score": score,
+            "url": opportunity.url
         })
 
         proposal = generate_proposal(opportunity)
 
         approval_queue.add({
+
             "opportunity": opportunity,
+
             "proposal": proposal,
-            "plan": planner.plan(opportunity)
+
+            "plan": planner.plan(opportunity),
+
+            "score": score
         })
 
         learning.record_submission()
