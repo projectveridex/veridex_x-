@@ -12,8 +12,16 @@ def run_hunters():
 
     opportunities = []
 
-    opportunities.extend(scan_github_live())
-    opportunities.extend(scan_gitlab_live())
-    opportunities.extend(scan_rss())
+    opportunities.extend(
+        scan_github_live()
+    )
+
+    opportunities.extend(
+        scan_gitlab_live()
+    )
+
+    opportunities.extend(
+        scan_rss()
+    )
 
     return opportunities
